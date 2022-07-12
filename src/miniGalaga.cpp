@@ -41,7 +41,7 @@ byte bulletArray[8] = {
   B00000
 };
 
-int posData[] = {11,9999,9999,9999,9999,9999}; //first 2 nums are x coordinate x.y second 2 are y = x.y the last 2 are xvel,yvel This initial value is the pos of the player. Pleyers don't have velocity.
+int posData[] = {11,9999,9999,9999,9999,9999}; //first num is x coordinate second is y the last 2 are xvel,yvel This initial value is the pos of the player. Pleyers don't have velocity.
 static char matchingEntities[] = {spaceShip,bullet, bullet ,monster,monster,monster};
 unsigned long timeAtLastShot = 0;
 unsigned long timeAtLastSpawn = 0;
@@ -191,6 +191,21 @@ int drawEntitiesToPos(int entityData, int entityNum){
 void findNewPosOfEntities(){
     for(int i = 1; i<6; i++){
         if(posData[i]!=9999&&posData[i]/1000<16&&posData[i]/1000>-1) posData[i] = drawEntitiesToPos(posData[i], i);
+        if(i<3){
+            Serial.print("bullet: ");
+            Serial.print(posData[i]);
+            Serial.print(" ");
+            Serial.println(matchingEntities[i]);
+            delay(1000);
+        }
+        
+        if(i>2) {
+            Serial.print("monster: ");
+            Serial.print(posData[i]);
+            Serial.print(" ");
+            Serial.println(matchingEntities[i]);
+            delay(1000);
+        }
     }
     lcd.setCursor((posData[0]/10),posData[0]%10);
     lcd.write(spaceShip);
@@ -342,7 +357,7 @@ void loopGalaga(){
     bool exitGame = false;
     while(!exitGame){
         long time = millis();
-        while(millis()-time<100){
+        while(millis()-time<1000){
             if(Serial.available()) recieveInput();
         }
         checkNewEnemySpawn();
