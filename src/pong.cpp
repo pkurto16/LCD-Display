@@ -444,7 +444,7 @@ void loopPong()
         resetBall();
     }
 }
-void waitForStartInput(){
+void waitForStartInputPong(){
     lcd.setCursor(2,0);
     lcd.write("TYPE ANY KEY");
     lcd.setCursor(4,1);
@@ -459,7 +459,7 @@ void playPong(long startTime)
 {
     pongTimeAtFirstInput = startTime;
     lcd.createChar(6, heart);
-    waitForStartInput();
+    waitForStartInputPong();
     delay(100);
     lcd.clear();
     loopPong();
