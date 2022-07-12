@@ -10,7 +10,7 @@ extern rgb_lcd lcd;
 char spaceShip;
 char monster;
 char bullet;
-byte monster[8] = {
+byte monsterArray[8] = {
   B10001,
   B01110,
   B10001,
@@ -20,7 +20,7 @@ byte monster[8] = {
   B01010,
   B10001
 };
-byte spaceShip[8]={
+byte spaceShipArray[8]={
   B00100,
   B01010,
   B10110,
@@ -30,7 +30,7 @@ byte spaceShip[8]={
   B00100,
   B00000
 };
-byte bullet[] = {
+byte bulletArray[8] = {
   B00000,
   B00000,
   B11110,
@@ -42,7 +42,7 @@ byte bullet[] = {
 };
 
 int posData[] = {11,9999,9999,9999,9999,9999}; //first 2 nums are x coordinate x.y second 2 are y = x.y the last 2 are xvel,yvel This initial value is the pos of the player. Pleyers don't have velocity.
-static char matchingEntities[] = {spaceShip,'-','-',monster,monster,monster};
+static char matchingEntities[] = {spaceShip,bullet, bullet ,monster,monster,monster};
 unsigned long timeAtLastShot = 0;
 unsigned long timeAtLastSpawn = 0;
 int highscore = 0;
@@ -221,7 +221,7 @@ char chooseCharacter(){
 void characterStartAnimation(){
     for(int i = 0; i<100; i++){
         lcd.setCursor(1,1);
-        lcd.write(' ')
+        lcd.write(' ');
         delay(33-i/3);
         lcd.setCursor(1,1);
         lcd.write(spaceShip+i%(int)(199/i));
@@ -355,12 +355,12 @@ void loopGalaga(){
     }
 }
 void createChars(){
-    lcd.createChar(0, monster);
-    lcd.createChar(1,spaceShip);
+    lcd.createChar(0, monsterArray);
+    lcd.createChar(1,spaceShipArray);
+    lcd.createChar(2, bulletArray);
     monster = (unsigned char) 0;
     spaceShip = (unsigned char) 1;
-
-    
+    bullet = (unsigned char) 2;
 }
 void playGalaga(){
     createChars();
