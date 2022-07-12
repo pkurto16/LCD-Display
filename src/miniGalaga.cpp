@@ -41,8 +41,8 @@ byte bulletArray[8] = {
   B00000
 };
 
-int posData[] = {11,9999,9999,9999,9999,9999}; //first num is x coordinate second is y the last 2 are xvel,yvel This initial value is the pos of the player. Pleyers don't have velocity.
-static char matchingEntities[] = {spaceShip,bullet, bullet ,monster,monster,monster};
+int posData[] = {11,9999,9999,9999,9999,9999}; //first 2 nums are x coordinate x.y second 2 are y = x.y the last 2 are xvel,yvel This initial value is the pos of the player. Pleyers don't have velocity.
+char matchingEntities[] = {spaceShip,bullet,bullet,monster,monster,monster};
 unsigned long timeAtLastShot = 0;
 unsigned long timeAtLastSpawn = 0;
 int highscore = 0;
@@ -154,7 +154,7 @@ void move(int direction){ //1 is up, 2 is down, 3 is right, 4 is left
 
     lcd.setCursor(xPos, yPos);
     posData[0] = 10*xPos+yPos;
-    lcd.write(monster);
+    lcd.write(spaceShip);
     
 }
 void shoot(){
@@ -179,6 +179,7 @@ int drawEntitiesToPos(int entityData, int entityNum){
     int yPos = (entityData/100)%10;
     int xVel = ((entityData)%100)/10; //max xVel is 2 0 is negative 2 is positive 1 is zero
     int yVel = (entityData)%10; //max yVel is 2. 0 is negative 2 is positive 1 is zero
+    if(!(posData[0]/10==xPos&&posData[0]%10==yPos))
     lcd.setCursor(xPos,yPos);
     lcd.write(' ');
     xPos += xVel-1;
@@ -190,22 +191,10 @@ int drawEntitiesToPos(int entityData, int entityNum){
 }
 void findNewPosOfEntities(){
     for(int i = 1; i<6; i++){
-        if(posData[i]!=9999&&posData[i]/1000<16&&posData[i]/1000>-1) posData[i] = drawEntitiesToPos(posData[i], i);
-        if(i<3){
-            Serial.print("bullet: ");
-            Serial.print(posData[i]);
-            Serial.print(" ");
-            Serial.println(matchingEntities[i]);
-            delay(1000);
-        }
+        if(posData[i]!=9999&&posData[i]/1000<16&&posData[i]/1000>-1){
+            posData[i] = drawEntitiesToPos(posData[i], i);
+        } 
         
-        if(i>2) {
-            Serial.print("monster: ");
-            Serial.print(posData[i]);
-            Serial.print(" ");
-            Serial.println(matchingEntities[i]);
-            delay(1000);
-        }
     }
     lcd.setCursor((posData[0]/10),posData[0]%10);
     lcd.write(spaceShip);
@@ -222,29 +211,27 @@ void recieveInput(){
         default: break;
     }
 }
-char chooseCharacter(){
-    lcd.setCursor(0,0);
-    lcd.write("CHOOSE YOUR CHAR");
-    lcd.setCursor(2,1);
-    lcd.write("(TYPE IT IN)");
+extern void waitForStartInput(){
+    lcd.setCursor(2,0);
+    lcd.write("TYPE ANY KEY");
+    lcd.setCursor(4,1);
+    lcd.write("TO START");
+    delay(500);
+    Serial.read();
     while(!Serial.available()){
         delay(50);
     }
-    lcd.clear();
-    return Serial.readString().charAt(0);
 }
 void characterStartAnimation(){
-    for(int i = 0; i<100; i++){
+    lcd.clear();
+    for(int i = 0; i<50; i++){
         lcd.setCursor(1,1);
         lcd.write(' ');
         delay(33-i/3);
         lcd.setCursor(1,1);
-        lcd.write(spaceShip+i%(int)(199/i));
+        lcd.write(spaceShip);
         delay(33*(1+pow(i,2)/3333));
     }
-    lcd.clear();
-    lcd.setCursor(1,1);
-    lcd.write(spaceShip);
 }
 void checkNewEnemySpawn(){
     if(timeAtLastSpawn<millis()-300){
@@ -357,7 +344,7 @@ void loopGalaga(){
     bool exitGame = false;
     while(!exitGame){
         long time = millis();
-        while(millis()-time<1000){
+        while(millis()-time<100){
             if(Serial.available()) recieveInput();
         }
         checkNewEnemySpawn();
@@ -377,10 +364,20 @@ void createChars(){
     spaceShip = (unsigned char) 1;
     bullet = (unsigned char) 2;
 }
+void rewriteMatchingEntities(){
+    matchingEntities[0] = spaceShip;
+    matchingEntities[1] = bullet;            
+    matchingEntities[2] = bullet;
+    matchingEntities[3] = monster;
+    matchingEntities[4] = monster;
+    matchingEntities[5] = monster;
+}
 void playGalaga(){
     createChars();
-    spaceShip = chooseCharacter();
+    rewriteMatchingEntities();
+    waitForStartInput();
     characterStartAnimation();
+    String burner = Serial.readString();
     while(!Serial.available()) delay(100);
     loopGalaga();
 }
